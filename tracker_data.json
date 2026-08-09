@@ -1,0 +1,54 @@
+{
+  "alice": {
+    "tasks": [
+      {
+        "title": "Math revision",
+        "completed": false,
+        "priority": "high",
+        "due_date": "",
+        "reminder": "none"
+      }
+    ],
+    "goals": [],
+    "library": [],
+    "progress": {
+      "study_hours": 0,
+      "weekly_goal": 10,
+      "completion_rate": 0,
+      "current_streak": 0,
+      "best_streak": 0
+    }
+  },
+  "bob": {
+    "tasks": [
+      {
+        "title": "Science notes",
+        "completed": false,
+        "priority": "medium",
+        "due_date": "",
+        "reminder": "none"
+      }
+    ],
+    "goals": [],
+    "library": [],
+    "progress": {
+      "study_hours": 0,
+      "weekly_goal": 10,
+      "completion_rate": 0,
+      "current_streak": 0,
+      "best_streak": 0
+    }
+  },
+  "Saksham": {
+    "tasks": [],
+    "goals": [],
+    "library": [],
+    "progress": {
+      "study_hours": 0,
+      "weekly_goal": 10,
+      "completion_rate": 0,
+      "current_streak": 0,
+      "best_streak": 0
+    }
+  }
+}
