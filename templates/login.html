@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoltStudy Login</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='voltstudy-logo.svg') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='voltstudy-icon-192.png') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="192x192" href="{{ url_for('static', filename='voltstudy-icon-192.png') }}">
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             background: linear-gradient(135deg, #0f172a, #1e293b);
             color: white;
             display: flex;
@@ -27,12 +31,22 @@
             margin-top: 0;
             text-align: center;
         }
+        .logo {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 12px;
+            display: grid;
+            place-items: center;
+            border-radius: 18px;
+            object-fit: cover;
+            box-shadow: 0 12px 24px rgba(124, 58, 237, 0.3);
+        }
         form {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
-        input {
+        input, select {
             padding: 12px 14px;
             border-radius: 10px;
             border: 1px solid #334155;
@@ -66,6 +80,7 @@
 </head>
 <body>
     <div class="box">
+        <img class="logo" src="{{ url_for('static', filename='voltstudy-logo.svg') }}" alt="VoltStudy logo">
         <h2>VoltStudy</h2>
         <p style="text-align:center; color:#cbd5e1; margin-top:-8px; margin-bottom:18px;">{{ "Create account" if mode == "signup" else "Login" }}</p>
 
@@ -76,6 +91,12 @@
         <form method="POST">
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
+            <select name="role" required>
+                <option value="Student">Student</option>
+                <option value="Teacher">Teacher</option>
+                <option value="Professional">Professional</option>
+                <option value="Other">Other</option>
+            </select>
             <button type="submit">
                 {{ "Sign up" if mode == "signup" else "Login" }}
             </button>
