@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoltStudy — Study Tracker</title>
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='voltstudy-logo.svg') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='voltstudy-icon-192.png') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="192x192" href="{{ url_for('static', filename='voltstudy-icon-192.png') }}">
     <style>
         :root {
             --bg: #07111f;
@@ -30,22 +35,22 @@
         }
 
         body[data-theme="light"] {
-            --bg: #f4f7ff;
-            --bg-glow: #e8ecff;
+            --bg: #f7f9fc;
+            --bg-glow: #eaf0f8;
             --sidebar: #ffffff;
-            --sidebar-2: #eef3ff;
-            --panel: rgba(255,255,255,0.96);
-            --panel-strong: rgba(255,255,255,1);
+            --sidebar-2: #eef3f8;
+            --panel: #ffffff;
+            --panel-strong: #ffffff;
             --accent: #f59e0b;
             --accent-2: #6d28d9;
             --accent-3: #0f766e;
-            --text: #0f172a;
+            --text: #172033;
             --muted: #475569;
-            --line: rgba(15, 23, 42, 0.12);
-            --shadow: 0 14px 28px rgba(30, 41, 59, 0.12);
-            --surface-soft: rgba(148, 163, 184, 0.08);
-            --surface-strong: rgba(124, 58, 237, 0.08);
-            --button-text: #ffffff;
+            --line: rgba(15, 23, 42, 0.14);
+            --shadow: 0 14px 28px rgba(92, 118, 166, 0.16);
+            --surface-soft: rgba(15, 23, 42, 0.03);
+            --surface-strong: rgba(124, 58, 237, 0.05);
+            --button-text: #172033;
         }
 
         * { box-sizing: border-box; }
@@ -56,9 +61,88 @@
             background:
                 radial-gradient(circle at top left, rgba(124, 58, 237, 0.18), transparent 18%),
                 radial-gradient(circle at right top, rgba(14, 165, 233, 0.15), transparent 20%),
-                linear-gradient(135deg, var(--bg) 0%, var(--bg-glow) 58%, #040b13 100%);
+                linear-gradient(135deg, var(--bg) 0%, var(--bg-glow) 58%, var(--bg) 100%);
             color: var(--text);
             transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body[data-theme="light"] {
+            background:
+                radial-gradient(circle at 8% 0%, rgba(245, 158, 11, 0.11), transparent 24%),
+                radial-gradient(circle at 92% 6%, rgba(14, 165, 233, 0.10), transparent 22%),
+                linear-gradient(135deg, #f5f7fb 0%, #e8eef7 58%, #f5f7fb 100%);
+        }
+
+        body[data-theme="light"] .sidebar {
+            background: linear-gradient(180deg, #ffffff, #f3f6fa);
+            box-shadow: 4px 0 18px rgba(30, 41, 59, 0.04);
+        }
+
+        body[data-theme="light"] .card,
+        body[data-theme="light"] .planner-card,
+        body[data-theme="light"] .notification-bar {
+            background: #ffffff;
+            border-color: rgba(30, 41, 59, 0.13);
+            box-shadow: var(--shadow);
+        }
+
+        body[data-theme="light"] .nav-btn {
+            color: #334155;
+        }
+
+        body[data-theme="light"] .nav-btn.active,
+        body[data-theme="light"] .nav-btn:hover {
+            background: #fff7ed;
+            color: #9a3412;
+            border-color: rgba(217, 119, 6, 0.35);
+            box-shadow: none;
+        }
+
+        body[data-theme="light"] .card-header h3,
+        body[data-theme="light"] .card h3,
+        body[data-theme="light"] .planner-card h3,
+        body[data-theme="light"] h1,
+        body[data-theme="light"] h2,
+        body[data-theme="light"] h3,
+        body[data-theme="light"] strong,
+        body[data-theme="light"] .value,
+        body[data-theme="light"] .label {
+            color: #172033 !important;
+        }
+
+        body[data-theme="light"] .card p,
+        body[data-theme="light"] .muted,
+        body[data-theme="light"] .bar-label,
+        body[data-theme="light"] .day-label,
+        body[data-theme="light"] .timeline-time,
+        body[data-theme="light"] .profile-meta span,
+        body[data-theme="light"] .ring-inner span {
+            color: #526174 !important;
+        }
+
+        body[data-theme="light"] input,
+        body[data-theme="light"] select {
+            background: #ffffff;
+            color: #172033;
+            border-color: rgba(30, 41, 59, 0.18);
+        }
+
+        body[data-theme="light"] input::placeholder {
+            color: #64748b;
+        }
+
+        body[data-theme="light"] .timeline-item,
+        body[data-theme="light"] .list li,
+        body[data-theme="light"] .insight-list li,
+        body[data-theme="light"] .day-cell {
+            background: #fbfdff;
+            color: #172033;
+            border-color: rgba(30, 41, 59, 0.12);
+        }
+
+        body[data-theme="light"] .ring::before {
+            background: #ffffff;
+            border-color: rgba(30, 41, 59, 0.10);
         }
 
         .shell {
@@ -93,15 +177,84 @@
             margin-bottom: 12px;
         }
 
+        .completed-item {
+            text-decoration: line-through;
+            opacity: 0.68;
+        }
+
+        .completed-item::before {
+            content: "✓";
+            display: inline-block;
+            margin-right: 8px;
+            color: #34d399;
+            font-weight: 900;
+            text-decoration: none;
+        }
+
+        .notification-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            background: var(--surface-soft);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+
+        .notification-prompt {
+            position: fixed;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            z-index: 20;
+            max-width: 680px;
+            margin: 0 auto;
+            background: var(--panel-strong);
+            border: 1px solid var(--accent);
+            box-shadow: var(--shadow);
+        }
+
+        .notification-prompt[hidden] { display: none; }
+
+        .focus-timer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .timer-value {
+            font-size: 2.2rem;
+            font-variant-numeric: tabular-nums;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .library-search { width: 100%; margin-bottom: 14px; }
+
+        .calendar-day { width: 100%; cursor: pointer; font: inherit; }
+
+        .calendar-day.selected { outline: 3px solid var(--accent); outline-offset: 1px; }
+
+        .calendar-status { min-height: 1.5em; margin-top: 12px; }
+
+        .media-preview { max-width: 240px; max-height: 150px; margin-top: 8px; border-radius: 8px; }
+
+        .task-filter { width: 100%; margin-bottom: 14px; }
+
+        .edit-task-form { width: 100%; margin-top: 10px; }
+
+        .edit-task-form[hidden] { display: none; }
+
         .brand h2 {
             margin: 0;
             font-size: 1.8rem;
             color: var(--accent);
             letter-spacing: 0.04em;
-        }
-
-        .day-cell.empty {
-            opacity: 0.2;
         }
 
         .brand p {
@@ -217,6 +370,13 @@
             color: #111827;
         }
 
+        .profile-photo {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
         .profile-meta {
             display: flex;
             flex-direction: column;
@@ -259,7 +419,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            background: var(--surface-soft);
+            background: rgba(255,255,255,0.03);
             border: 1px solid var(--line);
             border-radius: 18px;
             padding: 10px 12px;
@@ -268,9 +428,9 @@
 
         .profile-card button {
             margin-left: auto;
-            background: linear-gradient(135deg, rgba(124,58,237,0.9), rgba(109,40,217,0.9));
-            border: 1px solid rgba(124,58,237,0.3);
-            color: #ffffff;
+            background: rgba(124,58,237,0.12);
+            border: 1px solid rgba(124,58,237,0.22);
+            color: var(--text);
             border-radius: 10px;
             padding: 7px 10px;
             font-weight: 700;
@@ -288,12 +448,11 @@
             position: relative;
             overflow: hidden;
             min-height: 150px;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(18, 28, 45, 0.96));
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
             border: 1px solid var(--line);
             border-radius: 22px;
             padding: 18px 18px 16px;
             box-shadow: var(--shadow);
-            color: var(--text);
         }
 
         .stat-card::after {
@@ -310,6 +469,11 @@
         .stat-card:nth-child(2) { background: linear-gradient(135deg, rgba(245,158,11,0.28), rgba(180,83,9,0.14)); }
         .stat-card:nth-child(3) { background: linear-gradient(135deg, rgba(16,185,129,0.26), rgba(5,150,105,0.14)); }
         .stat-card:nth-child(4) { background: linear-gradient(135deg, rgba(14,165,233,0.22), rgba(30,64,175,0.14)); }
+
+        body[data-theme="light"] .stat-card:nth-child(1) { background: linear-gradient(135deg, #f0eaff, #faf8ff); }
+        body[data-theme="light"] .stat-card:nth-child(2) { background: linear-gradient(135deg, #fff4d6, #fffaf0); }
+        body[data-theme="light"] .stat-card:nth-child(3) { background: linear-gradient(135deg, #e4f8f0, #f6fffb); }
+        body[data-theme="light"] .stat-card:nth-child(4) { background: linear-gradient(135deg, #e3f4ff, #f7fbff); }
 
         .label {
             position: relative;
@@ -353,23 +517,11 @@
         }
 
         .card {
-            background: linear-gradient(180deg, rgba(13, 22, 34, 0.96), rgba(17, 25, 39, 0.96));
+            background: linear-gradient(180deg, rgba(23,38,63,0.96), rgba(16,28,46,0.96));
             border: 1px solid var(--line);
             border-radius: 22px;
             padding: 22px;
             box-shadow: var(--shadow);
-            color: var(--text);
-        }
-
-        body[data-theme="light"] .card,
-        body[data-theme="light"] .stat-card,
-        body[data-theme="light"] .profile-card,
-        body[data-theme="light"] .nav-btn,
-        body[data-theme="light"] .list li,
-        body[data-theme="light"] .insight-list li,
-        body[data-theme="light"] .planner-card {
-            background: rgba(255,255,255,0.92);
-            color: var(--text);
         }
 
         .card-header {
@@ -386,18 +538,26 @@
             color: #f6d77a;
         }
 
+        body[data-theme="light"] .card-header h3,
+        body[data-theme="light"] .card h3,
+        body[data-theme="light"] .planner-card h3,
+        body[data-theme="light"] h1,
+        body[data-theme="light"] h2,
+        body[data-theme="light"] h3,
+        body[data-theme="light"] strong,
+        body[data-theme="light"] .value,
+        body[data-theme="light"] .label {
+            color: #111827 !important;
+        }
+
         .chip-mini {
-            background: rgba(124,58,237,0.12);
+            background: rgba(124,58,237,0.15);
             border: 1px solid rgba(124,58,237,0.35);
-            color: #4c1d95;
+            color: #ddd6fe;
             border-radius: 999px;
             padding: 5px 8px;
             font-size: 0.68rem;
             font-weight: 800;
-        }
-
-        body[data-theme="light"] .chip-mini {
-            color: #4c1d95;
         }
 
         .mini-chart {
@@ -461,11 +621,6 @@
             border-radius: 50%;
         }
 
-        body[data-theme="light"] .ring::before {
-            background: rgba(255,255,255,0.96);
-            border-color: rgba(15, 23, 42, 0.08);
-        }
-
         .ring-inner {
             position: relative;
             z-index: 1;
@@ -521,6 +676,11 @@
             border-color: rgba(45,212,191,0.35);
         }
 
+        body[data-theme="light"] .day-cell {
+            background: #ffffff;
+            color: var(--text);
+        }
+
         .insight-list {
             list-style: none;
             padding: 0;
@@ -564,11 +724,22 @@
             transition: border 0.2s ease, box-shadow 0.2s ease;
         }
 
-        input:focus, select:focus {
-            border-color: rgba(251,191,36,0.4);
-            box-shadow: 0 0 0 3px rgba(251,191,36,0.12);
+        body[data-theme="light"] input,
+            --bg: #f5f7fb;
+            --bg-glow: #e8eef7;
+            color: var(--text);
+            --sidebar-2: #f3f6fa;
         }
 
+            --accent: #d97706;
+            --accent-2: #5b21b6;
+        }
+
+            --muted: #526174;
+            --line: rgba(30, 41, 59, 0.13);
+            --shadow: 0 12px 30px rgba(30, 41, 59, 0.09);
+            --surface-soft: #f8fafc;
+            --surface-strong: #f1f5f9;
         .primary-btn,
         .secondary-btn,
         .ghost-btn {
@@ -606,6 +777,18 @@
             border-radius: 22px;
             padding: 22px;
             box-shadow: var(--shadow);
+        }
+
+        body[data-theme="light"] .planner-card {
+            background: linear-gradient(180deg, #ffffff, #f4f8fc);
+            color: var(--text);
+        }
+
+        body[data-theme="light"] .timeline-item,
+        body[data-theme="light"] .list li,
+        body[data-theme="light"] .insight-list li {
+            background: #ffffff;
+            color: var(--text);
         }
 
         .timeline {
@@ -729,10 +912,35 @@
 
         @media (max-width: 900px) {
             .shell { flex-direction: column; }
-            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--line); }
-            .nav { flex-direction: row; flex-wrap: wrap; }
-            .content { padding: 20px; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--line); padding: 16px; }
+            .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 4px 4px 14px; }
+            .brand-mark { width: 44px; height: 44px; margin: 0; flex: 0 0 auto; }
+            .brand h2 { font-size: 1.35rem; }
+            .brand p { margin: 2px 0 0; }
+            .nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
+            .nav-btn { min-width: 0; padding: 9px 4px; justify-content: center; flex-direction: column; gap: 3px; text-align: center; font-size: 0.72rem; }
+            .nav-btn::before { width: 22px; height: 22px; }
+            .content { padding: 16px 12px 28px; }
+            .header { align-items: stretch; margin-bottom: 16px; }
+            .header h1 { font-size: 1.75rem; }
+            .header-actions { width: 100%; flex-wrap: wrap; }
+            .profile-card { min-width: 0; flex: 1 1 180px; }
             .analytics-grid, .bottom-grid, .panel-grid { grid-template-columns: 1fr; }
+            .dashboard-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .card, .planner-card { padding: 16px; border-radius: 16px; }
+            .stat-card { min-height: 112px; border-radius: 16px; }
+            .timeline-item { grid-template-columns: 1fr; gap: 7px; }
+            .timeline-content { align-items: flex-start; }
+            .list li { align-items: flex-start; flex-direction: column; padding: 12px; }
+            form input, form select, form button { min-width: 100%; }
+            .ring-grid { justify-content: space-around; }
+            .notification-prompt { left: 12px; right: 12px; bottom: 12px; }
+        }
+
+        @media (max-width: 420px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .nav-btn { font-size: 0.62rem; }
+            .header-actions .chip { flex: 1 1 100%; text-align: center; }
         }
     </style>
 </head>
@@ -740,9 +948,9 @@
     <div class="shell">
         <aside class="sidebar">
             <div class="brand">
-                <div class="brand-mark">⚡</div>
-                <h2>VoltStudy</h2>
-                <p>Study Planner</p>
+                <img class="brand-mark" src="{{ url_for('static', filename='voltstudy-logo.svg') }}" alt="VoltStudy logo">
+                <div><h2>VoltStudy</h2>
+                <p>Study Tracker</p></div>
             </div>
 
             <nav class="nav" aria-label="Sidebar navigation">
@@ -751,29 +959,81 @@
                 <button class="nav-btn" data-icon="▣" data-target="library">Library</button>
                 <button class="nav-btn" data-icon="◔" data-target="progress">Progress</button>
                 <button class="nav-btn" data-icon="★" data-target="streak">Best Streak</button>
+                <button class="nav-btn" data-icon="⚙" data-target="settings">Settings</button>
             </nav>
         </aside>
 
         <main class="content">
             <header class="header">
-                <h1>VoltStudy dashboard</h1>
+                <h1>Study dashboard</h1>
                 <div class="header-actions">
                     <span class="chip">Focus mode</span>
                     <button class="theme-toggle" type="button" aria-label="Toggle theme">☀️</button>
                     <div class="profile-card">
-                        <div class="profile-avatar">{{ username[:2].upper() }}</div>
+                        {% if user_data.profile.photo %}<img class="profile-photo" src="{{ user_data.profile.photo }}" alt="Profile photo">{% else %}<div class="profile-avatar">{{ username[:2].upper() }}</div>{% endif %}
                         <div class="profile-meta">
                             <strong>{{ username }}</strong>
-                            <span>Student</span>
+                            <span>{{ role }}</span>
                         </div>
-                        <a href="{{ url_for('logout') }}" style="text-decoration:none;">
-                            <button type="button">Logout</button>
+                        <a href="{{ url_for('logout') }}" aria-label="Sign out">
+                            <button type="button">Sign out</button>
                         </a>
                     </div>
                 </div>
             </header>
 
+            <div class="notification-bar">
+                <span><strong>Notifications</strong> <span id="notification-status" class="muted">Enable alerts for tasks and goals.</span></span>
+                <button class="primary-btn" id="enable-notifications" type="button">Enable alerts</button>
+            </div>
+
+            <div class="notification-bar notification-prompt" id="notification-prompt" role="dialog" aria-live="polite">
+                <span><strong>Stay on top of your study plan</strong><br><span class="muted">Allow VoltStudy to notify you about due tasks and goal milestones.</span></span>
+                <span style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button class="primary-btn" id="prompt-enable-notifications" type="button">Allow notifications</button>
+                    <button class="ghost-btn" id="prompt-disallow-notifications" type="button">Disallow</button>
+                </span>
+            </div>
+
+            {% if reminder_alerts or goal_alerts %}
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="card-header"><h3>🔔 Active alerts</h3><span class="chip-mini">Now</span></div>
+                <ul class="insight-list">
+                    {% for alert in reminder_alerts %}
+                        <li><span>Task due: {{ alert.title }}</span><strong>{{ alert.due_date }}</strong></li>
+                    {% endfor %}
+                    {% for alert in goal_alerts %}
+                        <li><span>Goal milestone: {{ alert.title }}</span><strong>{{ alert.milestone }}%</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
             <section id="tasks" class="tab-panel active">
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-header"><h3>⏱ Focus session</h3><span class="chip-mini">Saved automatically</span></div>
+                    <div class="focus-timer">
+                        <div><div class="timer-value" id="timer-value">25:00</div><span class="muted">Complete a session to add real study time.</span></div>
+                        <span style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <select id="timer-duration" aria-label="Focus duration">
+                                <option value="15">15 min</option>
+                                <option value="25" selected>25 min</option>
+                                <option value="45">45 min</option>
+                                <option value="60">60 min</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <input id="custom-duration" type="number" min="1" max="240" value="30" placeholder="Minutes" aria-label="Custom minutes" hidden>
+                            <select id="break-duration" aria-label="Break duration">
+                                <option value="5">5 min break</option>
+                                <option value="10">10 min break</option>
+                                <option value="15">15 min break</option>
+                            </select>
+                            <span class="muted" id="timer-phase">Focus</span>
+                            <button class="primary-btn" id="timer-start" type="button">Start</button>
+                            <button class="secondary-btn" id="timer-reset" type="button">Reset</button>
+                        </span>
+                    </div>
+                </div>
                 <div class="dashboard-grid">
                     <div class="stat-card">
                         <div class="label">Completed</div>
@@ -793,31 +1053,6 @@
                     </div>
                 </div>
 
-                {% if reminder_alerts %}
-                <div class="card" style="margin-bottom:20px;">
-                    <div class="card-header">
-                        <h3>🔔 Reminder alerts</h3>
-                        <span class="chip-mini">Due soon</span>
-                    </div>
-                    <ul class="insight-list">
-                        {% for alert in reminder_alerts %}
-                        <li>
-                            <span><span class="insight-badge" style="background:#f59e0b"></span> {{ alert.title }}</span>
-                            <strong>{{ alert.due_date }}</strong>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% endif %}
-
-                <div class="card" style="margin-bottom:20px;">
-                    <div class="card-header">
-                        <h3>📣 Daily summary</h3>
-                        <span class="chip-mini">Today</span>
-                    </div>
-                    <p class="muted">{{ daily_summary.summary_text }}</p>
-                </div>
-
                 <div class="analytics-grid">
                     <div class="card">
                         <div class="card-header">
@@ -826,10 +1061,7 @@
                         </div>
                         <div class="mini-chart">
                             {% for item in dashboard.weekly_activity %}
-                            <div class="bar-col">
-                                <div class="bar" style="height: {{ item.value }}%"></div>
-                                <span class="bar-label">{{ item.day }}</span>
-                            </div>
+                                <div class="bar-col"><div class="bar" style="height: {{ item.value }}%"></div><span class="bar-label">{{ item.day }}</span></div>
                             {% endfor %}
                         </div>
                     </div>
@@ -849,22 +1081,38 @@
                     </div>
                 </div>
 
+                <div class="planner-card" style="margin-bottom: 20px;">
+                    <div class="card-header">
+                        <h3>🗓️ Weekly planner timeline</h3>
+                        <span class="chip-mini">This week</span>
+                    </div>
+                    <div class="timeline">
+                        {% for item in dashboard.planner_items %}
+                            <div class="timeline-item">
+                                <div class="timeline-time">{{ item.day }}</div>
+                                <div class="timeline-content"><span class="timeline-dot"></span><span>{{ item.title }}</span></div>
+                                <span class="timeline-tag">{{ item.priority }}</span>
+                            </div>
+                        {% else %}
+                            <p class="muted">Add due dates to tasks to build your weekly planner.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
                 <div class="bottom-grid">
                     <div class="card">
                         <div class="card-header">
                             <h3>📅 This month</h3>
-                            <span class="chip-mini">{{ (dashboard.month_days | selectattr('empty', 'equalto', false) | list | length) }} days</span>
+                            <span class="chip-mini">{{ dashboard.month_label }}</span>
                         </div>
                         <div class="calendar-grid">
                             <div class="day-label">S</div><div class="day-label">M</div><div class="day-label">T</div><div class="day-label">W</div><div class="day-label">T</div><div class="day-label">F</div><div class="day-label">S</div>
                             {% for day in dashboard.month_days %}
-                                {% if day.empty %}
-                                    <div class="day-cell empty" style="visibility:hidden;">&nbsp;</div>
-                                {% else %}
-                                    <div class="day-cell {% if day.is_today %}today{% endif %} {% if day.is_active %}active{% endif %}">{{ day.day }}</div>
-                                {% endif %}
+                                {% if day.empty %}<div class="day-cell empty">&nbsp;</div>
+                                {% else %}<button class="day-cell calendar-day {% if day.is_today %}today{% elif day.is_active %}active{% endif %}" type="button" data-date="{{ day.date }}">{{ day.day }}</button>{% endif %}
                             {% endfor %}
                         </div>
+                        <p class="muted calendar-status" id="calendar-status">Click a date to show tasks due that day.</p>
                     </div>
 
                     <div class="card">
@@ -873,7 +1121,7 @@
                         </div>
                         <ul class="insight-list">
                             {% for insight in dashboard.insights %}
-                            <li><span><span class="insight-badge" style="background: {{ '#7c3aed' if loop.index0 == 0 else '#10b981' if loop.index0 == 1 else '#fbbf24' }}"></span> {{ insight.label }}</span><strong>{{ insight.value }}</strong></li>
+                                <li><span><span class="insight-badge" style="background: {{ '#7c3aed' if loop.index0 == 0 else '#10b981' if loop.index0 == 1 else '#fbbf24' }}"></span> {{ insight.label }}</span><strong>{{ insight.value }}</strong></li>
                             {% endfor %}
                         </ul>
                     </div>
@@ -885,16 +1133,19 @@
                         <form method="POST">
                             <input type="hidden" name="tab" value="tasks">
                             <input type="text" name="task" placeholder="What do you want to finish?" required>
+                            <input type="text" name="category" placeholder="Subject/category (Math, Science...)" value="General">
                             <input type="date" name="task_due_date">
+                            <select name="task_reminder">
+                                <option value="none">No reminder</option>
+                                <option value="same-day">Due today</option>
+                                <option value="1-day">1 day before</option>
+                                <option value="1-week">1 week before</option>
+                                <option value="overdue">When overdue</option>
+                            </select>
                             <select name="priority">
                                 <option value="low">Low</option>
                                 <option value="medium" selected>Medium</option>
                                 <option value="high">High</option>
-                            </select>
-                            <select name="task_reminder">
-                                <option value="none">No reminder</option>
-                                <option value="same-day">Same day</option>
-                                <option value="1-day">1 day before</option>
                             </select>
                             <button class="primary-btn" type="submit">Add task</button>
                         </form>
@@ -902,7 +1153,7 @@
 
                     <div class="card">
                         <h3>⚡ Quick stats</h3>
-                        <p class="muted">Keep your study rhythm steady. Finish a few small wins to maintain momentum.</p>
+                        <p class="muted">{{ dashboard.pending_count }} tasks pending, {{ dashboard.library_count }} resources saved, and {{ goals|length }} active goals.</p>
                     </div>
                 </div>
 
@@ -911,18 +1162,34 @@
                 <div class="card">
                     <h3>📝 Today’s tasks</h3>
                     {% if tasks %}
+                        <select class="task-filter" id="task-category-filter" aria-label="Filter tasks by subject">
+                            <option value="all">All subjects</option>
+                            {% for category in tasks | map(attribute='category') | select | unique | list %}
+                                <option value="{{ category }}">{{ category }}</option>
+                            {% endfor %}
+                        </select>
                         <a href="/clear-completed" class="ghost-btn" style="margin-bottom: 12px;">Clear completed</a>
                         <ul class="list">
                             {% for task in tasks %}
-                                <li>
+                                <li class="task-item" data-category="{{ task.category or 'General' }}" data-due-date="{{ task.due_date or '' }}">
                                     <div class="task-main">
-                                        <span>{{ task.title }}</span>
+                                        <span class="{% if task.completed %}completed-item{% endif %}">{{ task.title }}</span>
+                                        <span class="library-tag">{{ task.category or 'General' }}</span>
                                         <span class="priority-badge priority-{{ task.priority or 'medium' }}">{{ task.priority or 'medium' }}</span>
                                     </div>
                                     <div style="display: flex; gap: 8px;">
                                         <a href="/complete/{{ loop.index0 }}" class="secondary-btn">✓</a>
                                         <a href="/delete/{{ loop.index0 }}" class="ghost-btn">✕</a>
+                                        <button class="primary-btn edit-task-toggle" type="button">Edit</button>
                                     </div>
+                                    <form class="edit-task-form" method="POST" action="/edit-task/{{ loop.index0 }}" hidden>
+                                        <input type="text" name="task" value="{{ task.title }}" required>
+                                        <input type="date" name="task_due_date" value="{{ task.due_date or '' }}">
+                                        <input type="text" name="category" value="{{ task.category or 'General' }}" required>
+                                        <select name="priority"><option value="low" {% if task.priority == 'low' %}selected{% endif %}>Low</option><option value="medium" {% if task.priority == 'medium' or not task.priority %}selected{% endif %}>Medium</option><option value="high" {% if task.priority == 'high' %}selected{% endif %}>High</option></select>
+                                        <select name="task_reminder"><option value="none" {% if task.reminder == 'none' or not task.reminder %}selected{% endif %}>No reminder</option><option value="same-day" {% if task.reminder == 'same-day' %}selected{% endif %}>Due today</option><option value="1-day" {% if task.reminder == '1-day' %}selected{% endif %}>1 day before</option><option value="1-week" {% if task.reminder == '1-week' %}selected{% endif %}>1 week before</option><option value="overdue" {% if task.reminder == 'overdue' %}selected{% endif %}>When overdue</option></select>
+                                        <button class="primary-btn" type="submit">Save</button>
+                                    </form>
                                 </li>
                             {% endfor %}
                         </ul>
@@ -940,6 +1207,7 @@
                             <input type="hidden" name="tab" value="goals">
                             <input type="text" name="goal" placeholder="Goal title" required>
                             <input type="number" name="target" min="1" value="1" placeholder="Target">
+                            <input type="date" name="goal_deadline" min="{{ today }}" aria-label="Goal deadline">
                             <button class="primary-btn" type="submit">Save goal</button>
                         </form>
                     </div>
@@ -959,8 +1227,9 @@
                             {% for goal in goals %}
                                 <li>
                                     <div style="flex: 1;">
-                                        <strong>{{ goal.title }}</strong>
+                                        <strong class="{% if goal.progress >= goal.target %}completed-item{% endif %}">{{ goal.title }}</strong>
                                         <div class="muted">{{ goal.progress }} / {{ goal.target }}</div>
+                                        {% if goal.deadline %}<div class="muted goal-deadline" data-deadline="{{ goal.deadline }}">Deadline: {{ goal.deadline }}</div>{% endif %}
                                         <div class="goal-progress">
                                             <div class="goal-progress-bar" style="width: {{ (goal.progress / goal.target) * 100 if goal.target else 0 }}%"></div>
                                         </div>
@@ -982,9 +1251,10 @@
                 <div class="panel-grid">
                     <div class="card">
                         <h3>📚 Add resource</h3>
-                        <form method="POST">
+                        <form method="POST" enctype="multipart/form-data">
                             <input type="hidden" name="tab" value="library">
-                            <input type="text" name="library_title" placeholder="Add a resource or note" required>
+                            <input type="text" name="library_title" placeholder="Name (optional when uploading a file)">
+                            <input type="file" name="library_file" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.xls,.xlsx,.mp4,.webm,.mov,.mp3,.wav,.png,.jpg,.jpeg">
                             <select name="library_type">
                                 <option value="Notes">Notes</option>
                                 <option value="PDF">PDF</option>
@@ -1005,13 +1275,22 @@
 
                 <div class="card">
                     <h3>📚 Study library</h3>
+                    <input class="library-search" id="library-search" type="search" placeholder="Search your resources...">
                     {% if library %}
                         <ul class="list">
                             {% for item in library %}
-                                <li>
+                                <li class="library-item">
                                     <div>
                                         <strong>{{ item.title }}</strong><br>
                                         <span class="library-tag">{{ item.type }}</span>
+                                        {% if item.url %}<a class="library-tag" href="{{ item.url }}" target="_blank" rel="noopener">Open file</a>{% endif %}
+                                        {% if item.url and item.filename %}
+                                            {% set extension = item.filename.rsplit('.', 1)[-1].lower() %}
+                                            {% if extension in ['png', 'jpg', 'jpeg'] %}<img class="media-preview" src="{{ item.url }}" alt="{{ item.title }}">{% endif %}
+                                            {% if extension in ['mp4', 'webm', 'mov'] %}<video class="media-preview" controls src="{{ item.url }}"></video>{% endif %}
+                                            {% if extension in ['mp3', 'wav', 'm4a'] %}<audio controls src="{{ item.url }}"></audio>{% endif %}
+                                            {% if extension == 'pdf' %}<iframe class="media-preview" src="{{ item.url }}" title="{{ item.title }}"></iframe>{% endif %}
+                                        {% endif %}
                                     </div>
                                     <a href="/delete-library/{{ loop.index0 }}" class="ghost-btn">Remove</a>
                                 </li>
@@ -1045,7 +1324,7 @@
 
                 <div class="card">
                     <h3>📈 Progress summary</h3>
-                    <p class="muted">You are moving steadily through your weekly plan. The more consistent your revision sessions, the stronger your momentum becomes.</p>
+                    <p class="muted">{{ dashboard.completed_count }} of {{ dashboard.total_count }} tasks are complete. Your current completion rate is {{ dashboard.completion_rate }}%.</p>
                 </div>
             </section>
 
@@ -1061,17 +1340,34 @@
                     </div>
                     <div class="stat-card">
                         <div class="label">Motivation</div>
-                        <div class="value">High</div>
+                        <div class="value">{{ 'High' if progress['current_streak'] >= 3 else 'Building' }}</div>
                     </div>
                     <div class="stat-card">
                         <div class="label">Momentum</div>
-                        <div class="value">On</div>
+                        <div class="value">{{ 'On' if dashboard.pending_count < dashboard.total_count else 'Start' }}</div>
                     </div>
                 </div>
 
                 <div class="card">
                     <h3>🔥 Streak reminder</h3>
                     <p class="muted">Consistency counts more than intensity. Completing one focused task each day keeps your study streak alive.</p>
+                </div>
+            </section>
+
+            <section id="settings" class="tab-panel">
+                <div class="card">
+                    <h3>⚙ Personalization</h3>
+                    <form method="POST" action="{{ url_for('settings') }}" enctype="multipart/form-data">
+                        <input type="text" name="subjects" value="{{ user_data.profile.subjects | join(', ') }}" placeholder="Subjects, separated by commas">
+                        <input type="number" name="daily_target" min="1" max="1440" value="{{ user_data.profile.daily_target }}" placeholder="Daily target in minutes">
+                        <select id="settings-theme" aria-label="Choose theme">
+                            <option value="dark">Dark theme</option>
+                            <option value="light">Light theme</option>
+                        </select>
+                        <input type="file" name="profile_photo" accept=".png,.jpg,.jpeg">
+                        <button class="primary-btn" type="submit">Save preferences</button>
+                    </form>
+                    <p class="muted">Set your study subjects, daily target, and profile photo.</p>
                 </div>
             </section>
         </main>
@@ -1103,12 +1399,261 @@
 
         const savedTheme = localStorage.getItem('trackerTheme') || 'dark';
         applyTheme(savedTheme);
+        const settingsTheme = document.getElementById('settings-theme');
+        if (settingsTheme) settingsTheme.value = savedTheme;
 
         if (themeToggle) {
             themeToggle.addEventListener('click', () => {
                 const nextTheme = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
                 applyTheme(nextTheme);
             });
+        }
+
+        if (settingsTheme) {
+            settingsTheme.addEventListener('change', () => applyTheme(settingsTheme.value));
+        }
+
+        const notificationButton = document.getElementById('enable-notifications');
+        const promptNotificationButton = document.getElementById('prompt-enable-notifications');
+        const disallowNotificationButton = document.getElementById('prompt-disallow-notifications');
+        const notificationPrompt = document.getElementById('notification-prompt');
+        const notificationStatus = document.getElementById('notification-status');
+        const initialNotifications = [
+            {% for alert in reminder_alerts %}
+                { title: 'Task reminder', body: {{ alert.title|tojson }}, tag: {{ ('task-' ~ alert.title ~ '-' ~ alert.due_date)|tojson }} },
+            {% endfor %}
+            {% for alert in goal_alerts %}
+                { title: 'Goal milestone', body: {{ alert.title|tojson }}, tag: {{ ('goal-' ~ alert.title)|tojson }} },
+            {% endfor %}
+        ];
+        const shownNotifications = new Set(JSON.parse(localStorage.getItem('voltStudyNotifications') || '[]'));
+
+        const showNotifications = (items) => {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            items.forEach((item) => {
+                if (shownNotifications.has(item.tag)) return;
+                new Notification(item.title, { body: item.body, tag: item.tag });
+                shownNotifications.add(item.tag);
+            });
+            localStorage.setItem('voltStudyNotifications', JSON.stringify([...shownNotifications].slice(-100)));
+        };
+
+        const refreshNotifications = async () => {
+            try {
+                const response = await fetch('{{ url_for("notifications") }}');
+                if (response.ok) showNotifications((await response.json()).notifications || []);
+            } catch (error) {
+                // The dashboard alert panel remains available if polling is unavailable.
+            }
+        };
+
+        const updateNotificationPrompt = () => {
+            const supported = 'Notification' in window;
+            const granted = supported && Notification.permission === 'granted';
+            if (notificationPrompt) notificationPrompt.hidden = granted || !supported;
+            if (notificationButton) notificationButton.hidden = granted || !supported;
+            if (!supported) {
+                notificationStatus.textContent = 'Browser alerts are not supported here.';
+            } else if (granted) {
+                notificationStatus.textContent = 'Browser alerts are enabled.';
+            } else if (Notification.permission === 'denied') {
+                notificationStatus.textContent = 'Alerts are blocked. Allow them in your browser site settings.';
+            }
+        };
+
+        if (!('Notification' in window)) {
+            notificationStatus.textContent = 'Browser alerts are not supported here.';
+            notificationButton.disabled = true;
+        } else if (Notification.permission === 'granted') {
+            notificationStatus.textContent = 'Browser alerts are enabled.';
+            showNotifications(initialNotifications);
+        }
+
+        const requestNotifications = async () => {
+            const permission = await Notification.requestPermission();
+            notificationStatus.textContent = permission === 'granted' ? 'Browser alerts are enabled.' : 'Browser alerts were blocked.';
+            if (permission === 'granted') {
+                showNotifications(initialNotifications);
+                refreshNotifications();
+            }
+            updateNotificationPrompt();
+        };
+
+        notificationButton.addEventListener('click', requestNotifications);
+        promptNotificationButton.addEventListener('click', requestNotifications);
+        disallowNotificationButton.addEventListener('click', () => {
+            notificationPrompt.hidden = true;
+            notificationStatus.textContent = 'Notifications are off. You can enable them anytime.';
+            notificationButton.hidden = false;
+        });
+        updateNotificationPrompt();
+        setInterval(refreshNotifications, 60000);
+
+        const timerValue = document.getElementById('timer-value');
+        const timerStart = document.getElementById('timer-start');
+        const timerReset = document.getElementById('timer-reset');
+        const timerDuration = document.getElementById('timer-duration');
+        const customDuration = document.getElementById('custom-duration');
+        const breakDuration = document.getElementById('break-duration');
+        const timerPhase = document.getElementById('timer-phase');
+        const savedDuration = localStorage.getItem('voltStudyTimerDuration') || '25';
+        timerDuration.value = ['15', '25', '45', '60'].includes(savedDuration) ? savedDuration : 'custom';
+        customDuration.value = timerDuration.value === 'custom' ? savedDuration : '30';
+        customDuration.hidden = timerDuration.value !== 'custom';
+
+        const getDurationMinutes = () => {
+            const value = timerDuration.value === 'custom' ? customDuration.value : timerDuration.value;
+            return Math.min(240, Math.max(1, Number.parseInt(value, 10) || 25));
+        };
+
+        let remainingSeconds = getDurationMinutes() * 60;
+        let timerHandle = null;
+        let elapsedSeconds = 0;
+        let timerPhaseName = 'Focus';
+        let completedCycles = 0;
+
+        const renderTimer = () => {
+            const minutes = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
+            const seconds = (remainingSeconds % 60).toString().padStart(2, '0');
+            timerValue.textContent = `${minutes}:${seconds}`;
+            timerPhase.textContent = `${timerPhaseName} | Cycles: ${completedCycles}`;
+        };
+
+        const finishFocusSession = async () => {
+            const minutes = Math.max(1, Math.round(elapsedSeconds / 60));
+            try {
+                await fetch('{{ url_for("focus_session") }}', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({minutes})
+                });
+            } catch (error) {
+                console.error('Could not save focus session', error);
+            }
+        };
+
+        const stopTimer = async (saveSession = true) => {
+            if (!timerHandle) return;
+            clearInterval(timerHandle);
+            timerHandle = null;
+            if (saveSession && timerPhaseName === 'Focus' && elapsedSeconds > 0) await finishFocusSession();
+            timerStart.textContent = 'Start';
+        };
+
+        const beginNextPhase = () => {
+            if (timerPhaseName === 'Focus') {
+                completedCycles += 1;
+                timerPhaseName = 'Break';
+                remainingSeconds = Number.parseInt(breakDuration.value, 10) * 60;
+            } else {
+                timerPhaseName = 'Focus';
+                remainingSeconds = getDurationMinutes() * 60;
+                elapsedSeconds = 0;
+            }
+            renderTimer();
+        };
+
+        timerStart.addEventListener('click', () => {
+            if (timerHandle) {
+                stopTimer();
+                return;
+            }
+            timerStart.textContent = 'Pause';
+            timerHandle = setInterval(() => {
+                remainingSeconds -= 1;
+                if (timerPhaseName === 'Focus') elapsedSeconds += 1;
+                renderTimer();
+                if (remainingSeconds <= 0) {
+                    if (timerPhaseName === 'Focus') finishFocusSession();
+                    beginNextPhase();
+                }
+            }, 1000);
+        });
+
+        timerReset.addEventListener('click', async () => {
+            await stopTimer(false);
+            remainingSeconds = getDurationMinutes() * 60;
+            elapsedSeconds = 0;
+            timerPhaseName = 'Focus';
+            completedCycles = 0;
+            renderTimer();
+        });
+        const updateDuration = () => {
+            if (timerHandle) return;
+            customDuration.hidden = timerDuration.value !== 'custom';
+            const minutes = getDurationMinutes();
+            localStorage.setItem('voltStudyTimerDuration', timerDuration.value === 'custom' ? String(minutes) : timerDuration.value);
+            remainingSeconds = minutes * 60;
+            elapsedSeconds = 0;
+            renderTimer();
+        };
+        timerDuration.addEventListener('change', updateDuration);
+        customDuration.addEventListener('input', updateDuration);
+        breakDuration.addEventListener('change', () => {
+            localStorage.setItem('voltStudyBreakDuration', breakDuration.value);
+            if (!timerHandle && timerPhaseName === 'Break') {
+                remainingSeconds = Number.parseInt(breakDuration.value, 10) * 60;
+                renderTimer();
+            }
+        });
+        const savedBreakDuration = localStorage.getItem('voltStudyBreakDuration') || '5';
+        breakDuration.value = ['5', '10', '15'].includes(savedBreakDuration) ? savedBreakDuration : '5';
+        renderTimer();
+
+        const librarySearch = document.getElementById('library-search');
+        if (librarySearch) {
+            librarySearch.addEventListener('input', () => {
+                const query = librarySearch.value.toLowerCase();
+                document.querySelectorAll('.library-item').forEach((item) => {
+                    item.hidden = !item.textContent.toLowerCase().includes(query);
+                });
+            });
+        }
+
+        const taskFilter = document.getElementById('task-category-filter');
+        const calendarStatus = document.getElementById('calendar-status');
+        const filterTasks = (dateValue = '') => {
+            let visibleCount = 0;
+            document.querySelectorAll('.task-item').forEach((item) => {
+                const categoryMatches = !taskFilter || taskFilter.value === 'all' || item.dataset.category === taskFilter.value;
+                const dateMatches = !dateValue || item.dataset.dueDate === dateValue;
+                item.hidden = !(categoryMatches && dateMatches);
+                if (!item.hidden) visibleCount += 1;
+            });
+            if (calendarStatus && dateValue) {
+                calendarStatus.textContent = visibleCount
+                    ? `${visibleCount} task${visibleCount === 1 ? '' : 's'} due on ${dateValue}.`
+                    : `No tasks are due on ${dateValue}.`;
+            }
+        };
+        if (taskFilter) taskFilter.addEventListener('change', () => filterTasks());
+        document.querySelectorAll('.edit-task-toggle').forEach((button) => {
+            button.addEventListener('click', () => {
+                const form = button.closest('.task-item').querySelector('.edit-task-form');
+                form.hidden = !form.hidden;
+            });
+        });
+        document.querySelectorAll('.calendar-day').forEach((day) => {
+            day.addEventListener('click', () => {
+                const selected = day.dataset.date;
+                const isSelected = day.classList.toggle('selected');
+                document.querySelectorAll('.calendar-day').forEach((item) => {
+                    if (item !== day) item.classList.remove('selected');
+                });
+                filterTasks(isSelected ? selected : '');
+                if (!isSelected && calendarStatus) calendarStatus.textContent = 'Click a date to show tasks due that day.';
+                if (isSelected) document.querySelector('.task-item')?.closest('.card')?.scrollIntoView({behavior: 'smooth', block: 'start'});
+            });
+        });
+
+        document.querySelectorAll('.goal-deadline').forEach((element) => {
+            const deadline = new Date(`${element.dataset.deadline}T00:00:00`);
+            const days = Math.ceil((deadline - new Date()) / 86400000);
+            element.textContent += days < 0 ? ' | overdue' : days === 0 ? ' | due today' : ` | ${days} days left`;
+        });
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('{{ url_for("static", filename="sw.js") }}').catch(() => {});
         }
     </script>
 </body>
