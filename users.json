@@ -1,5 +1,10 @@
 {
-  "alice": "secret",
-  "bob": "secret2",
-  "Saksham": "Saksham#2907"
+  "alice": {
+    "password": "secret",
+    "role": "Student"
+  },
+  "bob": {
+    "password": "secret2",
+    "role": "Student"
+  }
 }
