@@ -1,7 +1,10 @@
 import calendar
 import json
 import os
-from datetime import date, timedelta
+import secrets
+import smtplib
+from datetime import date, datetime, timedelta, timezone
+from email.message import EmailMessage
 from pathlib import Path
 
 from flask import Flask, jsonify, redirect, render_template, request, send_from_directory, session, url_for
@@ -20,6 +23,22 @@ ALLOWED_UPLOAD_EXTENSIONS = {
     "mp4", "webm", "mov", "avi", "mkv", "mp3", "wav", "m4a", "png", "jpg", "jpeg"
 }
 app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024
+DEFAULT_TRIAL_DURATION_DAYS = 30
+
+
+def trial_duration_days():
+    try:
+        return max(1, int(os.environ.get("TRIAL_DURATION_DAYS", DEFAULT_TRIAL_DURATION_DAYS)))
+    except (TypeError, ValueError):
+        return DEFAULT_TRIAL_DURATION_DAYS
+
+
+def utc_now():
+    return datetime.now(timezone.utc)
+
+
+def iso_datetime(value):
+    return value.isoformat()
 
 
 def default_data():
@@ -45,8 +64,69 @@ def default_data():
 
 def normalize_user_record(record):
     if isinstance(record, dict):
-        return {"password": record.get("password", ""), "role": record.get("role", "Student")}
-    return {"password": record or "", "role": "Student"}
+        return {
+            "password": record.get("password", ""),
+            "role": record.get("role", "Student"),
+            "email": record.get("email", ""),
+            "is_verified": bool(record.get("is_verified", False)),
+            "verification_token": record.get("verification_token", ""),
+            "created_at": record.get("created_at", ""),
+            "access_expires_at": record.get("access_expires_at", ""),
+        }
+    return {
+        "password": record or "",
+        "role": "Student",
+        "email": "",
+        "is_verified": True,
+        "verification_token": "",
+        "created_at": "",
+        "access_expires_at": "",
+    }
+
+
+def account_is_expired(account):
+    expires_at = account.get("access_expires_at")
+    if not expires_at:
+        return False
+    try:
+        expiry = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+        if expiry.tzinfo is None:
+            expiry = expiry.replace(tzinfo=timezone.utc)
+        return utc_now() >= expiry
+    except ValueError:
+        return True
+
+
+def create_account_record(password, role, email):
+    created_at = utc_now()
+    return {
+        "password": password,
+        "role": role,
+        "email": email,
+        "is_verified": False,
+        "verification_token": secrets.token_urlsafe(32),
+        "created_at": iso_datetime(created_at),
+        "access_expires_at": iso_datetime(created_at + timedelta(days=trial_duration_days())),
+    }
+
+
+def send_verification_email(account, username):
+    verification_url = url_for("verify", token=account["verification_token"], _external=True)
+    host = os.environ.get("SMTP_HOST")
+    if not host:
+        app.logger.warning("Verification URL for %s: %s", username, verification_url)
+        return verification_url
+
+    message = EmailMessage()
+    message["Subject"] = "Verify your VoltStudy account"
+    message["From"] = os.environ.get("SMTP_FROM", os.environ.get("SMTP_USERNAME", ""))
+    message["To"] = account["email"]
+    message.set_content(f"Verify your VoltStudy account by opening this link:\n\n{verification_url}")
+    with smtplib.SMTP(host, int(os.environ.get("SMTP_PORT", "587"))) as smtp:
+        smtp.starttls()
+        smtp.login(os.environ["SMTP_USERNAME"], os.environ["SMTP_PASSWORD"])
+        smtp.send_message(message)
+    return verification_url
 
 
 def allowed_upload(filename):
@@ -55,6 +135,11 @@ def allowed_upload(filename):
 
 def get_user_role(username):
     return normalize_user_record(load_users().get(username)).get("role", "Student")
+
+
+def get_current_account():
+    username = get_current_username()
+    return normalize_user_record(load_users().get(username)) if username else None
 
 
 def load_users():
@@ -133,6 +218,11 @@ def persist_current_user_data(user_data):
 def require_login():
     if not get_current_username():
         return redirect(url_for("login"))
+    account = get_current_account()
+    if account and account_is_expired(account):
+        return redirect(url_for("access_expired"))
+    if account and not account["is_verified"]:
+        return redirect(url_for("login", error="Please verify your email before logging in."))
     return None
 
 
@@ -351,6 +441,10 @@ def login():
         users = load_users()
         account = normalize_user_record(users.get(username))
         if username in users and account["password"] == password and account["role"] == role:
+            if account_is_expired(account):
+                return redirect(url_for("access_expired"))
+            if not account["is_verified"]:
+                return render_template("login.html", error="Verify your email before logging in.", mode="login")
             session["username"] = username
             return redirect(url_for("index"))
         return render_template("login.html", error="Invalid username or password", mode="login")
@@ -364,15 +458,16 @@ def signup():
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
         role = request.form.get("role", "Student")
+        email = request.form.get("email", "").strip()
 
-        if not username or not password:
-            return render_template("login.html", error="Username and password are required", mode="signup")
+        if not username or not password or not email:
+            return render_template("login.html", error="Username, email, and password are required", mode="signup")
 
         users = load_users()
         if username in users:
             return render_template("login.html", error="Username already exists", mode="signup")
 
-        users[username] = {"password": password, "role": role}
+        users[username] = create_account_record(password, role, email)
         save_users(users)
 
         data = load_data()
@@ -380,7 +475,15 @@ def signup():
         save_data(data)
 
         session["username"] = username
-        return redirect(url_for("login"))
+        try:
+            verification_url = send_verification_email(users[username], username)
+        except (KeyError, OSError, smtplib.SMTPException, ValueError):
+            users.pop(username, None)
+            save_users(users)
+            return render_template("login.html", error="Could not send the verification email. Check SMTP settings and try again.", mode="signup")
+
+        session.pop("username", None)
+        return render_template("login.html", message="Check your email to verify your account.", verification_url=verification_url if not os.environ.get("SMTP_HOST") else None, error=None, mode="login")
 
     return render_template("login.html", error=None, mode="signup")
 
@@ -389,6 +492,64 @@ def signup():
 def logout():
     session.pop("username", None)
     return redirect(url_for("login"))
+
+
+@app.route("/verify/<token>")
+def verify(token):
+    users = load_users()
+    for username, raw_account in users.items():
+        account = normalize_user_record(raw_account)
+        if secrets.compare_digest(account["verification_token"], token):
+            if account_is_expired(account):
+                return redirect(url_for("access_expired"))
+            account["is_verified"] = True
+            account["verification_token"] = ""
+            users[username] = account
+            save_users(users)
+            return render_template("login.html", message="Email verified. You can now log in.", error=None, mode="login")
+    return render_template("login.html", error="This verification link is invalid or has already been used.", mode="login")
+
+
+@app.route("/access-expired")
+def access_expired():
+    session.pop("username", None)
+    return render_template("expired.html", trial_duration_days=trial_duration_days())
+
+
+@app.route("/admin/access", methods=["POST"])
+def admin_access():
+    if not os.environ.get("ADMIN_KEY") or request.headers.get("X-Admin-Key") != os.environ["ADMIN_KEY"]:
+        return jsonify({"error": "Admin authorization required"}), 403
+
+    username = request.form.get("username") or (request.get_json(silent=True) or {}).get("username")
+    payload = request.get_json(silent=True) or request.form
+    if not username:
+        return jsonify({"error": "username is required"}), 400
+
+    users = load_users()
+    if username not in users:
+        return jsonify({"error": "user not found"}), 404
+    account = normalize_user_record(users[username])
+    explicit_expiry = payload.get("accessExpiresAt") or payload.get("access_expires_at")
+    duration = payload.get("trialDurationDays") or payload.get("trial_duration_days")
+    if explicit_expiry:
+        try:
+            expiry = datetime.fromisoformat(str(explicit_expiry).replace("Z", "+00:00"))
+            if expiry.tzinfo is None:
+                expiry = expiry.replace(tzinfo=timezone.utc)
+            account["access_expires_at"] = expiry.isoformat()
+        except ValueError:
+            return jsonify({"error": "accessExpiresAt must be an ISO datetime"}), 400
+    elif duration is not None:
+        try:
+            account["access_expires_at"] = iso_datetime(utc_now() + timedelta(days=max(1, int(duration))))
+        except (TypeError, ValueError):
+            return jsonify({"error": "trialDurationDays must be a positive integer"}), 400
+    else:
+        return jsonify({"error": "provide trialDurationDays or accessExpiresAt"}), 400
+    users[username] = account
+    save_users(users)
+    return jsonify({"username": username, "access_expires_at": account["access_expires_at"]})
 
 
 @app.route("/settings", methods=["POST"])
@@ -605,6 +766,11 @@ def uploaded_file(username, filename):
     if username != get_current_username():
         return redirect(url_for("login"))
     return send_from_directory(UPLOADS_DIR / secure_filename(username), secure_filename(filename))
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(BASE_DIR / "static", "favicon.ico")
 
 
 @app.route("/complete/<int:index>")
