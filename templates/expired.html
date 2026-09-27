@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoltStudy Access Expired</title>
+    <style>
+        body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; background: #07111f; color: #edf6ff; }
+        .box { width: min(100%, 460px); padding: 32px; text-align: center; border: 1px solid rgba(255,255,255,.12); border-radius: 20px; background: #121f33; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+        .logo { width: 76px; height: 76px; object-fit: cover; border-radius: 20px; }
+        h1 { margin: 18px 0 10px; }
+        p { color: #a9b7cb; line-height: 1.6; }
+        a { display: inline-block; margin-top: 12px; padding: 12px 18px; border-radius: 10px; background: #fbbf24; color: #111827; font-weight: 800; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <main class="box">
+        <img class="logo" src="{{ url_for('static', filename='voltstudy-icon-192.png') }}" alt="VoltStudy logo">
+        <h1>Access expired</h1>
+        <p>Your VoltStudy access period has ended after {{ trial_duration_days }} days. Contact the administrator to renew or extend your access.</p>
+        <a href="{{ url_for('login') }}">Back to login</a>
+    </main>
+</body>
+</html>
