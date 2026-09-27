@@ -725,21 +725,16 @@
         }
 
         body[data-theme="light"] input,
-            --bg: #f5f7fb;
-            --bg-glow: #e8eef7;
-            color: var(--text);
-            --sidebar-2: #f3f6fa;
+        body[data-theme="light"] select {
+            background: #ffffff;
+            color: #172033;
+            border-color: rgba(30, 41, 59, 0.18);
         }
 
-            --accent: #d97706;
-            --accent-2: #5b21b6;
+        body[data-theme="light"] input::placeholder {
+            color: #64748b;
         }
 
-            --muted: #526174;
-            --line: rgba(30, 41, 59, 0.13);
-            --shadow: 0 12px 30px rgba(30, 41, 59, 0.09);
-            --surface-soft: #f8fafc;
-            --surface-strong: #f1f5f9;
         .primary-btn,
         .secondary-btn,
         .ghost-btn {
@@ -948,7 +943,7 @@
     <div class="shell">
         <aside class="sidebar">
             <div class="brand">
-                <img class="brand-mark" src="{{ url_for('static', filename='voltstudy-logo.svg') }}" alt="VoltStudy logo">
+                <img class="brand-mark" src="{{ url_for('static', filename='voltstudy-icon-192.png') }}" alt="VoltStudy logo">
                 <div><h2>VoltStudy</h2>
                 <p>Study Tracker</p></div>
             </div>
