@@ -67,6 +67,21 @@
             font-size: 14px;
             margin-bottom: 10px;
         }
+        .message {
+            color: #86efac;
+            font-size: 14px;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .verification-link {
+            display: block;
+            margin: 12px 0;
+            padding: 10px;
+            color: #fde68a;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 8px;
+            overflow-wrap: anywhere;
+        }
         .link {
             text-align: center;
             margin-top: 12px;
@@ -80,16 +95,23 @@
 </head>
 <body>
     <div class="box">
-        <img class="logo" src="{{ url_for('static', filename='voltstudy-logo.svg') }}" alt="VoltStudy logo">
+        <img class="logo" src="{{ url_for('static', filename='voltstudy-icon-192.png') }}" alt="VoltStudy logo">
         <h2>VoltStudy</h2>
         <p style="text-align:center; color:#cbd5e1; margin-top:-8px; margin-bottom:18px;">{{ "Create account" if mode == "signup" else "Login" }}</p>
 
         {% if error %}
             <div class="error">{{ error }}</div>
         {% endif %}
+        {% if message %}
+            <div class="message">{{ message }}</div>
+        {% endif %}
+        {% if verification_url %}
+            <a class="verification-link" href="{{ verification_url }}">Open verification link</a>
+        {% endif %}
 
         <form method="POST">
             <input type="text" name="username" placeholder="Username" required>
+            {% if mode == "signup" %}<input type="email" name="email" placeholder="Email address" required>{% endif %}
             <input type="password" name="password" placeholder="Password" required>
             <select name="role" required>
                 <option value="Student">Student</option>
